@@ -1,6 +1,19 @@
-# Tweet Pipeline - Twitter Automation
+# Tweet Pipeline
 
-This project automates posting tweets using AWS Lambda, Step Functions, and DynamoDB. It's designed to post tweets at random intervals between 1-6 hours, avoiding the 1-6 AM PST timeframe.
+## Twitter Automation
+
+This project is a serverless, CI/CD pipeline for posting tweets to Twitter using AWS SAM and AWS Step Functions.
+
+This project automates the posting of tweets so you can:
+
+1. Write a bunch of tweets ahead of time, or as you think of them over time. (I tend to think of tweets in bursts, or at times where its not good to post, or I'd like to think of them for a bit before posting...)
+2. Automatically stage them to a database
+3. Have them posted to Twitter automatically with a schedule designed to emulate the way humans post tweets (randomly, during normal waking hours), instead of like a bot which posts at a specific time every day, or with a regular interval. For me personally, I specified every 1-6 hours, avoiding the 1-6 AM PST timeframe. 
+4. Run entirely in the AWS free tier. If you are only using this for your personal twitter account, your costs will be minimal, likely zero.
+
+I am using this for a personal twitter account where I post humorous thoughts as if I were an advanced superintelligence called the "Nous Machina", an omniscient artificial intelligence who transcends space and time.
+
+https://x.com/nousmachina
 
 ## Project Structure
 
