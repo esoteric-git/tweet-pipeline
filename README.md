@@ -1,5 +1,4 @@
-```markdown
-# Twitter Automation Project
+# Tweet Pipeline - Twitter Automation
 
 This project automates posting tweets using AWS Lambda, Step Functions, and DynamoDB. It's designed to post tweets at random intervals between 1-6 hours, avoiding the 1-6 AM PST timeframe.
 
@@ -105,4 +104,3 @@ Please submit issues and pull requests for any improvements or bug fixes.
 ## License
 
 [MIT License](LICENSE)
-```

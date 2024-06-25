@@ -6,8 +6,8 @@ import random
 from datetime import datetime, timezone, timedelta
 from boto3.dynamodb.conditions import Attr
 
-# Hardcode the Twitter account name
-TWITTER_ACCOUNT = 'nous'
+# Hardcode your Twitter account name alias. Ex. "nous"
+TWITTER_ACCOUNT = 'my-twitter'
 
 # Initialize the SSM client
 ssm = boto3.client('ssm', region_name=os.environ['AWS_REGION'])
