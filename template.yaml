@@ -1,0 +1,88 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: AWS SAM Template for Tweet Posting Lambda and Step Functions
+
+Parameters:
+  Region:
+    Type: String
+  AccountID:
+    Type: String
+  S3BucketName:
+    Type: String
+    
+Resources:
+  PostTweetFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: post_tweet.lambda_handler
+      Runtime: python3.12
+      CodeUri: lambda/
+      MemorySize: 128
+      Timeout: 900
+      Policies:
+        - AmazonDynamoDBFullAccess
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - "ssm:GetParameter"
+                - "ssm:GetParameters"
+              Resource: 
+                - !Sub "arn:aws:ssm:${Region}:${AccountID}:parameter/twitter/*"
+
+  TweetPostingStateMachine:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      DefinitionString: 
+        Fn::Sub: |
+          {
+            "Comment": "A workflow to post tweets at random intervals between 1-6 hours, avoiding 1-6 AM PST.",
+            "StartAt": "CheckAndPostTweet",
+            "States": {
+              "CheckAndPostTweet": {
+                "Type": "Task",
+                "Resource": "${PostTweetFunction.Arn}",
+                "InputPath": "$",
+                "ResultPath": "$.tweetResult",
+                "Next": "CalculateWaitTime"
+              },
+              "CalculateWaitTime": {
+                "Type": "Task",
+                "Resource": "${PostTweetFunction.Arn}",
+                "InputPath": "$",
+                "ResultPath": "$.waitResult",
+                "Parameters": {
+                  "task": "calculate_wait_time"
+                },
+                "Next": "LoopChoice"
+              },
+              "LoopChoice": {
+                "Type": "Choice",
+                "Choices": [
+                  {
+                    "Variable": "$.waitResult.body.continue",
+                    "BooleanEquals": true,
+                    "Next": "WaitInterval"
+                  }
+                ],
+                "Default": "EndState"
+              },
+              "WaitInterval": {
+                "Type": "Wait",
+                "SecondsPath": "$.waitResult.body.wait_time",
+                "Next": "CheckAndPostTweet"
+              },
+              "EndState": {
+                "Type": "Succeed"
+              }
+            }
+          }
+      RoleArn: !Sub "arn:aws:iam::${AccountID}:role/StepFunctionsServiceRole"
+
+Outputs:
+  PostTweetFunction:
+    Description: "PostTweet Lambda Function ARN"
+    Value: !GetAtt PostTweetFunction.Arn
+  TweetPostingStateMachine:
+    Description: "Tweet Posting Step Functions State Machine ARN"
+    Value: !Ref TweetPostingStateMachine
